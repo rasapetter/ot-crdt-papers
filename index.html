@@ -90,19 +90,19 @@ limitations under the License.
       oldText = textElement.value;
     });
     socket.on('update', function(ops) {
-    console.log('from server:' + JSON.stringify(ops));
-    docState.points = [text.selectionStart, text.selectionEnd];
-    var rev = docState.ops.length;
-    for (var i = 0; i < ops.length; i++) {
-      peer.mergeOp(docState, ops[i]);
-    }
-    if (rev < docState.ops.length) {
-      socket.emit('update', docState.ops.slice(rev));
-    }
-    textElement.value = docState.getStr();
-    oldText = textElement.value;
-    text.selectionStart = docState.points[0];
-    text.selectionEnd = docState.points[1];
-    });
+      console.log('from server:' + JSON.stringify(ops));
+      docState.points = [text.selectionStart, text.selectionEnd];
+      var rev = docState.ops.length;
+      for (var i = 0; i < ops.length; i++) {
+        peer.mergeOp(docState, ops[i]);
+      }
+      if (rev < docState.ops.length) {
+        socket.emit('update', docState.ops.slice(rev));
+      }
+      textElement.value = docState.getStr();
+      oldText = textElement.value;
+      text.selectionStart = docState.points[0];
+      text.selectionEnd = docState.points[1];
+      });
   </script>
 </html>
