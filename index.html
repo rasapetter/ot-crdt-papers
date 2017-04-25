@@ -78,7 +78,7 @@ limitations under the License.
     var docState = new DocState();
     var peer = new Peer();
     textElement.addEventListener("input", function(event) {
-      var diff = getDiff(oldText, textElement.value, text.selectionEnd);
+      var diff = getDiff(oldText, textElement.value, textElement.selectionEnd);
       var ops = diffToOps(diff, docState);
       // apply ops locally
       for (var i = 0; i < ops.length; i++) {
@@ -91,7 +91,7 @@ limitations under the License.
     });
     socket.on('update', function(ops) {
       console.log('from server:' + JSON.stringify(ops));
-      docState.points = [text.selectionStart, text.selectionEnd];
+      docState.points = [textElement.selectionStart, textElement.selectionEnd];
       var rev = docState.ops.length;
       for (var i = 0; i < ops.length; i++) {
         peer.mergeOp(docState, ops[i]);
@@ -101,8 +101,8 @@ limitations under the License.
       }
       textElement.value = docState.getStr();
       oldText = textElement.value;
-      text.selectionStart = docState.points[0];
-      text.selectionEnd = docState.points[1];
+      textElement.selectionStart = docState.points[0];
+      textElement.selectionEnd = docState.points[1];
       });
   </script>
 </html>
