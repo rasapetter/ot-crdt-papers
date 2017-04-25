@@ -20,7 +20,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var ot_toy = require('./ot_toy');
+var otToy = require('./ot_toy');
 var sleep = require('sleep');
 
 var options = {root: __dirname};
@@ -32,7 +32,7 @@ app.get('/ot_toy.js', function(req, res){
   res.sendFile('ot_toy.js', options);
 });
 
-var docState = new ot_toy.DocState();
+var docState = new otToy.DocState();
 
 var rev = 0;
 function broadcast() {
@@ -44,7 +44,7 @@ function broadcast() {
 }
 
 io.on('connection', function(socket){
-  var peer = new ot_toy.Peer();
+  var peer = new otToy.Peer();
   console.log('client connected');
   socket.on('update', function(ops) {
     for (var i = 0; i < ops.length; i++) {

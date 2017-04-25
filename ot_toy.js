@@ -66,9 +66,9 @@ function contains(tree, i) {
 
 function mk_tree_raw(left, value, right) {
   var size = size_of(left) + 1 + size_of(right);
-  var left_height = left == null ? 0 : left.height;
-  var right_height = right == null ? 0 : right.height;
-  var height = Math.max(left_height, right_height) + 1;
+  var leftHeight = left == null ? 0 : left.height;
+  var rightHeight = right == null ? 0 : right.height;
+  var height = Math.max(leftHeight, rightHeight) + 1;
   return {
     left: left,
     value: value,
@@ -79,16 +79,16 @@ function mk_tree_raw(left, value, right) {
 }
 
 function mk_tree(left, value, right) {
-  var left_height = left == null ? 0 : left.height;
-  var right_height = right == null ? 0 : right.height;
-  if (left_height > right_height + 1) {
+  var leftHeight = left == null ? 0 : left.height;
+  var rightHeight = right == null ? 0 : right.height;
+  if (leftHeight > rightHeight + 1) {
     // unbalanced, rotate right
-    var new_right = mk_tree_raw(left.right, value - left.value, right);
-    return mk_tree_raw(left.left, left.value, new_right);
-  } else if (right_height > left_height + 1) {
+    var newRight = mk_tree_raw(left.right, value - left.value, right);
+    return mk_tree_raw(left.left, left.value, newRight);
+  } else if (rightHeight > leftHeight + 1) {
     // unbalanced, rotate left
-    var new_left = mk_tree_raw(left, value, right.left);
-    return mk_tree_raw(new_left, value + right.value, right.right);
+    var newLeft = mk_tree_raw(left, value, right.left);
+    return mk_tree_raw(newLeft, value + right.value, right.right);
   }
   return mk_tree_raw(left, value, right);
 }
@@ -97,13 +97,13 @@ function union_one(tree, i) {
   if (tree == null) {
     return mk_tree(null, i, null);
   } else if (i < tree.value) {
-    var left_union = union_one(tree.left, i);
-    return mk_tree(left_union, tree.value, tree.right);
+    var leftUnion = union_one(tree.left, i);
+    return mk_tree(leftUnion, tree.value, tree.right);
   } else if (i == tree.value) {
     return tree;
   } else {  // i > tree.value
-    var right_union = union_one(tree.right, i - tree.value);
-    return mk_tree(tree.left, tree.value, right_union);
+    var rightUnion = union_one(tree.right, i - tree.value);
+    return mk_tree(tree.left, tree.value, rightUnion);
   }
 }
 
@@ -112,11 +112,11 @@ function xi_one(tree, i) {
   if (tree == null) {
     return null;
   } else if (i <= tree.value) {
-    var left_seq = xi_one(tree.left, i);
-    return mk_tree(left_seq, tree.value + 1, tree.right);
+    var leftSeq = xi_one(tree.left, i);
+    return mk_tree(leftSeq, tree.value + 1, tree.right);
   } else {
-    var right_seq = xi_one(tree.right, i - tree.value);
-    return mk_tree(tree.left, tree.value, right_seq);
+    var rightSeq = xi_one(tree.right, i - tree.value);
+    return mk_tree(tree.left, tree.value, rightSeq);
   }
 }
 
@@ -241,9 +241,9 @@ class Peer {
     this.context = new Set();
   }
 
-  merge_op(doc_state, op) {
+  merge_op(docState, op) {
     var id = op.id;
-    var ops = doc_state.ops;
+    var ops = docState.ops;
     if (this.rev < ops.length && ops[this.rev].id == id) {
       // we already have this, roll rev forward
       this.rev++;
@@ -261,25 +261,25 @@ class Peer {
       }
     }
     // we don't have it, need to merge
-    var ins_list = [];
+    var insList = [];
     var S = null;
     var T = null;
     for (var ix = ops.length - 1; ix >= this.rev; ix--) {
-      var my_op = ops[ix];
-      if (my_op.ty == 'ins') {
-        var i = xi(S, my_op.ix);
-        if (!this.context.has(my_op.id)) {
-          ins_list.push([xi_inv(T, i), my_op.pri]);
+      var myOp = ops[ix];
+      if (myOp.ty == 'ins') {
+        var i = xi(S, myOp.ix);
+        if (!this.context.has(myOp.id)) {
+          insList.push([xi_inv(T, i), myOp.pri]);
           T = union_one(T, i);
         }
         S = union_one(S, i);
       }
     }
-    for (var i = ins_list.length - 1; i >= 0; i--) {
-      op = transform_ins(op, ins_list[i][0], ins_list[i][1]);
+    for (var i = insList.length - 1; i >= 0; i--) {
+      op = transform_ins(op, insList[i][0], insList[i][1]);
     }
     var current = (this.rev == ops.length);
-    doc_state.add(op);
+    docState.add(op);
     if (current) {
       this.rev++;
     } else {
