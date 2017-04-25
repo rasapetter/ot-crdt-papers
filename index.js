@@ -48,10 +48,10 @@ io.on('connection', function(socket){
   console.log('client connected');
   socket.on('update', function(ops) {
     for (var i = 0; i < ops.length; i++) {
-      peer.merge_op(docState, ops[i]);
+      peer.mergeOp(docState, ops[i]);
     }
     broadcast();
-    console.log('update: ' + JSON.stringify(ops) + ': ' + docState.get_str());
+    console.log('update: ' + JSON.stringify(ops) + ': ' + docState.getStr());
   });
   socket.emit('update', docState.ops);
 });

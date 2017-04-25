@@ -42,11 +42,11 @@ limitations under the License.
         result.push({
           pri: pri,
           ty: 'del',
-          ix: docState.xform_ix(i),
+          ix: docState.xFormIx(i),
           id: getid()
         });
       }
-      var ix = docState.xform_ix(end);
+      var ix = docState.xFormIx(end);
       for (var i = 0; i < newstr.length; i++) {
         result.push({
           pri: pri,
@@ -86,7 +86,7 @@ limitations under the License.
       }
       socket.emit('update', ops);
       console.log('ops:' + JSON.stringify(ops));
-      console.log('docstate: ' + docState.get_str());
+      console.log('docstate: ' + docState.getStr());
       oldText = textElement.value;
     });
     socket.on('update', function(ops) {
@@ -94,12 +94,12 @@ limitations under the License.
     docState.points = [text.selectionStart, text.selectionEnd];
     var rev = docState.ops.length;
     for (var i = 0; i < ops.length; i++) {
-      peer.merge_op(docState, ops[i]);
+      peer.mergeOp(docState, ops[i]);
     }
     if (rev < docState.ops.length) {
       socket.emit('update', docState.ops.slice(rev));
     }
-    textElement.value = docState.get_str();
+    textElement.value = docState.getStr();
     oldText = textElement.value;
     text.selectionStart = docState.points[0];
     text.selectionEnd = docState.points[1];

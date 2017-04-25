@@ -14,7 +14,7 @@
 
 // A testbed for operational transformation ideas.
 
-function size_of(tree) {
+function sizeOf(tree) {
   return tree == null ? 0 : tree.size;
 }
 
@@ -22,7 +22,7 @@ function xi(tree, i) {
   var base = 0;
   while (tree != null) {
     var left = tree.left;
-    var x = tree.value - size_of(left);
+    var x = tree.value - sizeOf(left);
     if (i < x) {
       tree = left;
     } else {
@@ -35,7 +35,7 @@ function xi(tree, i) {
 }
 
 // precondition: i is not a member of the set
-function xi_inv(tree, i) {
+function xiInv(tree, i) {
   var result = i;
   var x = 0;
   while (tree != null) {
@@ -43,7 +43,7 @@ function xi_inv(tree, i) {
       tree = tree.left;
     } else {
       i -= tree.value;
-      result -= size_of(tree.left) + 1;
+      result -= sizeOf(tree.left) + 1;
       tree = tree.right;
     }
   }
@@ -64,8 +64,8 @@ function contains(tree, i) {
   return false;
 }
 
-function mk_tree_raw(left, value, right) {
-  var size = size_of(left) + 1 + size_of(right);
+function mkTreeRaw(left, value, right) {
+  var size = sizeOf(left) + 1 + sizeOf(right);
   var leftHeight = left == null ? 0 : left.height;
   var rightHeight = right == null ? 0 : right.height;
   var height = Math.max(leftHeight, rightHeight) + 1;
@@ -78,51 +78,51 @@ function mk_tree_raw(left, value, right) {
   };
 }
 
-function mk_tree(left, value, right) {
+function mkTree(left, value, right) {
   var leftHeight = left == null ? 0 : left.height;
   var rightHeight = right == null ? 0 : right.height;
   if (leftHeight > rightHeight + 1) {
     // unbalanced, rotate right
-    var newRight = mk_tree_raw(left.right, value - left.value, right);
-    return mk_tree_raw(left.left, left.value, newRight);
+    var newRight = mkTreeRaw(left.right, value - left.value, right);
+    return mkTreeRaw(left.left, left.value, newRight);
   } else if (rightHeight > leftHeight + 1) {
     // unbalanced, rotate left
-    var newLeft = mk_tree_raw(left, value, right.left);
-    return mk_tree_raw(newLeft, value + right.value, right.right);
+    var newLeft = mkTreeRaw(left, value, right.left);
+    return mkTreeRaw(newLeft, value + right.value, right.right);
   }
-  return mk_tree_raw(left, value, right);
+  return mkTreeRaw(left, value, right);
 }
 
-function union_one(tree, i) {
+function unionOne(tree, i) {
   if (tree == null) {
-    return mk_tree(null, i, null);
+    return mkTree(null, i, null);
   } else if (i < tree.value) {
-    var leftUnion = union_one(tree.left, i);
-    return mk_tree(leftUnion, tree.value, tree.right);
+    var leftUnion = unionOne(tree.left, i);
+    return mkTree(leftUnion, tree.value, tree.right);
   } else if (i == tree.value) {
     return tree;
   } else {  // i > tree.value
-    var rightUnion = union_one(tree.right, i - tree.value);
-    return mk_tree(tree.left, tree.value, rightUnion);
+    var rightUnion = unionOne(tree.right, i - tree.value);
+    return mkTree(tree.left, tree.value, rightUnion);
   }
 }
 
 // \Xi_{i}(S)
-function xi_one(tree, i) {
+function xiOne(tree, i) {
   if (tree == null) {
     return null;
   } else if (i <= tree.value) {
-    var leftSeq = xi_one(tree.left, i);
-    return mk_tree(leftSeq, tree.value + 1, tree.right);
+    var leftSeq = xiOne(tree.left, i);
+    return mkTree(leftSeq, tree.value + 1, tree.right);
   } else {
-    var rightSeq = xi_one(tree.right, i - tree.value);
-    return mk_tree(tree.left, tree.value, rightSeq);
+    var rightSeq = xiOne(tree.right, i - tree.value);
+    return mkTree(tree.left, tree.value, rightSeq);
   }
 }
 
 
 // for debugging
-function to_array(tree) {
+function toArray(tree) {
   var result = [];
   function rec(tree, base) {
     if (tree != null) {
@@ -136,22 +136,22 @@ function to_array(tree) {
   return result;
 }
 
-function tree_toy() {
+function treeToy() {
   tree = null;
-  tree = union_one(tree, 7);
-  tree = union_one(tree, 2);
-  tree = union_one(tree, 0);
-  tree = union_one(tree, 2);
-  tree = union_one(tree, 3);
+  tree = unionOne(tree, 7);
+  tree = unionOne(tree, 2);
+  tree = unionOne(tree, 0);
+  tree = unionOne(tree, 2);
+  tree = unionOne(tree, 3);
   for (var i = 200; i > 100; i--) {
-    tree = union_one(tree, i);
+    tree = unionOne(tree, i);
   }
-  console.log(to_array(tree));
+  console.log(toArray(tree));
   console.log(tree.size, tree.height);
   for (var i = 0; i < 10; i++) {
-    console.log(i, xi(tree, i), xi_inv(tree, xi(tree, i)), contains(tree, i));
+    console.log(i, xi(tree, i), xiInv(tree, xi(tree, i)), contains(tree, i));
   }
-  console.log(to_array(xi_one(tree, 5)));
+  console.log(toArray(xiOne(tree, 5)));
 }
 
 //tree_toy();
@@ -166,10 +166,10 @@ function tree_toy() {
 // Note: mutating in place is appealing, to avoid allocations.
 function transform(op1, op2) {
   if (op2.ty != 'ins') { return op1; }
-  return transform_ins(op1, op2.ix, op2.pri);
+  return transformIns(op1, op2.ix, op2.pri);
 }
 
-function transform_ins(op1, ix, pri) {
+function transformIns(op1, ix, pri) {
   if (op1.ty == 'ins') {
     if (op1.ix < ix || (op1.ix == ix && op1.pri < pri)) {
       return op1;
@@ -205,8 +205,8 @@ class DocState {
     this.ops.push(op);
     if (op.ty == 'del') {
       if (!contains(this.dels, op.ix)) {
-        var ix = xi_inv(this.dels, op.ix);
-        this.dels = union_one(this.dels, op.ix);
+        var ix = xiInv(this.dels, op.ix);
+        this.dels = unionOne(this.dels, op.ix);
         this.str = this.str.slice(0, ix) + this.str.slice(ix + 1);
         for (var i = 0; i < this.points.length; i++) {
           if (this.points[i] > ix) {
@@ -215,8 +215,8 @@ class DocState {
         }
       }
     } else if (op.ty == 'ins') {
-      this.dels = xi_one(this.dels, op.ix);
-      var ix = xi_inv(this.dels, op.ix);
+      this.dels = xiOne(this.dels, op.ix);
+      var ix = xiInv(this.dels, op.ix);
       this.str = this.str.slice(0, ix) + op.ch + this.str.slice(ix);
       for (var i = 0; i < this.points.length; i++) {
         if (this.points[i] > ix) {
@@ -226,11 +226,11 @@ class DocState {
     }
   }
 
-  xform_ix(ix) {
+  xFormIx(ix) {
     return xi(this.dels, ix);
   }
 
-  get_str() {
+  getStr() {
     return this.str;
   }
 }
@@ -241,7 +241,7 @@ class Peer {
     this.context = new Set();
   }
 
-  merge_op(docState, op) {
+  mergeOp(docState, op) {
     var id = op.id;
     var ops = docState.ops;
     if (this.rev < ops.length && ops[this.rev].id == id) {
@@ -269,14 +269,14 @@ class Peer {
       if (myOp.ty == 'ins') {
         var i = xi(S, myOp.ix);
         if (!this.context.has(myOp.id)) {
-          insList.push([xi_inv(T, i), myOp.pri]);
-          T = union_one(T, i);
+          insList.push([xiInv(T, i), myOp.pri]);
+          T = unionOne(T, i);
         }
-        S = union_one(S, i);
+        S = unionOne(S, i);
       }
     }
     for (var i = insList.length - 1; i >= 0; i--) {
-      op = transform_ins(op, insList[i][0], insList[i][1]);
+      op = transformIns(op, insList[i][0], insList[i][1]);
     }
     var current = (this.rev == ops.length);
     docState.add(op);
