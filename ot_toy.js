@@ -197,7 +197,7 @@ class DocState {
   constructor() {
     this.ops = [];
     this.dels = null;
-    this.str = "";
+    this.str = '';
     this.points = [];  // in user-visible string coordinates
   }
 

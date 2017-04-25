@@ -51,7 +51,7 @@ io.on('connection', function(socket){
       peer.merge_op(docState, ops[i]);
     }
     broadcast();
-    console.log('update: ' + JSON.stringify(ops) + ": " + docState.get_str());
+    console.log('update: ' + JSON.stringify(ops) + ': ' + docState.get_str());
   });
   socket.emit('update', docState.ops);
 });
