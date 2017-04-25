@@ -31,35 +31,35 @@ limitations under the License.
     var pri = Math.floor(Math.random() * 0x1000000);
     var ser = 0;
     function getid() {
-        return (pri * 0x100000) + ser++;
+      return (pri * 0x100000) + ser++;
     }
     function diffToOps(diff, docState) {
-        var start = diff[0];
-        var end = diff[1];
-        var newstr = diff[2];
-        var result = [];
-        for (var i = start; i < end; i++) {
-            result.push({pri: pri, ty: 'del', ix: docState.xform_ix(i), id: getid()});
-        }
-        var ix = docState.xform_ix(end);
-        for (var i = 0; i < newstr.length; i++) {
-            result.push({pri: pri, ty: 'ins', ix: ix + i, id: getid(), ch: newstr.charAt(i)});
-        }
-        return result;
+      var start = diff[0];
+      var end = diff[1];
+      var newstr = diff[2];
+      var result = [];
+      for (var i = start; i < end; i++) {
+        result.push({pri: pri, ty: 'del', ix: docState.xform_ix(i), id: getid()});
+      }
+      var ix = docState.xform_ix(end);
+      for (var i = 0; i < newstr.length; i++) {
+        result.push({pri: pri, ty: 'ins', ix: ix + i, id: getid(), ch: newstr.charAt(i)});
+      }
+      return result;
     }
     function getDiff(oldText, newText, cursor) {
-        var delta = newText.length - oldText.length;
-        var limit = Math.max(0, cursor - delta);
-        var end = oldText.length;
-        while (end > limit && oldText.charAt(end - 1) == newText.charAt(end + delta - 1)) {
-            end -= 1;
-        }
-        var start = 0;
-        var startLimit = cursor - Math.max(0, delta);
-        while (start < startLimit && oldText.charAt(start) == newText.charAt(start)) {
-            start += 1;
-        }
-        return [start, end, newText.slice(start, end + delta)];
+      var delta = newText.length - oldText.length;
+      var limit = Math.max(0, cursor - delta);
+      var end = oldText.length;
+      while (end > limit && oldText.charAt(end - 1) == newText.charAt(end + delta - 1)) {
+        end -= 1;
+      }
+      var start = 0;
+      var startLimit = cursor - Math.max(0, delta);
+      while (start < startLimit && oldText.charAt(start) == newText.charAt(start)) {
+        start += 1;
+      }
+      return [start, end, newText.slice(start, end + delta)];
     }
     var textElement = document.getElementById("text");
     var oldText = "";
@@ -67,31 +67,31 @@ limitations under the License.
     var docState = new DocState();
     var peer = new Peer();
     textElement.addEventListener("input", function(event) {
-        var diff = getDiff(oldText, textElement.value, text.selectionEnd);
-        var ops = diffToOps(diff, docState);
-        // apply ops locally
-        for (var i = 0; i < ops.length; i++) {
-            docState.add(ops[i]);
-        }
-        socket.emit('update', ops);
-        console.log('ops:' + JSON.stringify(ops));
-        console.log('docstate: ' + docState.get_str());
-        oldText = textElement.value;
+      var diff = getDiff(oldText, textElement.value, text.selectionEnd);
+      var ops = diffToOps(diff, docState);
+      // apply ops locally
+      for (var i = 0; i < ops.length; i++) {
+        docState.add(ops[i]);
+      }
+      socket.emit('update', ops);
+      console.log('ops:' + JSON.stringify(ops));
+      console.log('docstate: ' + docState.get_str());
+      oldText = textElement.value;
     });
     socket.on('update', function(ops) {
-        console.log('from server:' + JSON.stringify(ops));
-        docState.points = [text.selectionStart, text.selectionEnd];
-        var rev = docState.ops.length;
-        for (var i = 0; i < ops.length; i++) {
-            peer.merge_op(docState, ops[i]);
-        }
-        if (rev < docState.ops.length) {
-            socket.emit('update', docState.ops.slice(rev));
-        }
-        textElement.value = docState.get_str();
-        oldText = textElement.value;
-        text.selectionStart = docState.points[0];
-        text.selectionEnd = docState.points[1];
+    console.log('from server:' + JSON.stringify(ops));
+    docState.points = [text.selectionStart, text.selectionEnd];
+    var rev = docState.ops.length;
+    for (var i = 0; i < ops.length; i++) {
+      peer.merge_op(docState, ops[i]);
+    }
+    if (rev < docState.ops.length) {
+      socket.emit('update', docState.ops.slice(rev));
+    }
+    textElement.value = docState.get_str();
+    oldText = textElement.value;
+    text.selectionStart = docState.points[0];
+    text.selectionEnd = docState.points[1];
     });
   </script>
 </html>

@@ -25,35 +25,35 @@ var sleep = require('sleep');
 
 var options = {root: __dirname};
 app.get('/', function(req, res){
-    res.sendFile('index.html', options);
+  res.sendFile('index.html', options);
 });
 
 app.get('/ot_toy.js', function(req, res){
-    res.sendFile('ot_toy.js', options);
+  res.sendFile('ot_toy.js', options);
 });
 
 var docState = new ot_toy.DocState();
 
 var rev = 0;
 function broadcast() {
-    if (rev < docState.ops.length) {
-        //sleep.sleep(1);  // disable for good performance, enable to simulate lag
-        io.emit('update', docState.ops.slice(rev));
-        rev = docState.ops.length;
-    }
+  if (rev < docState.ops.length) {
+    //sleep.sleep(1);  // disable for good performance, enable to simulate lag
+    io.emit('update', docState.ops.slice(rev));
+    rev = docState.ops.length;
+  }
 }
 
 io.on('connection', function(socket){
-    var peer = new ot_toy.Peer();
-    console.log('client connected');
-    socket.on('update', function(ops) {
-        for (var i = 0; i < ops.length; i++) {
-            peer.merge_op(docState, ops[i]);
-        }
-        broadcast();
-        console.log('update: ' + JSON.stringify(ops) + ": " + docState.get_str());
-    });
-    socket.emit('update', docState.ops);
+  var peer = new ot_toy.Peer();
+  console.log('client connected');
+  socket.on('update', function(ops) {
+    for (var i = 0; i < ops.length; i++) {
+      peer.merge_op(docState, ops[i]);
+    }
+    broadcast();
+    console.log('update: ' + JSON.stringify(ops) + ": " + docState.get_str());
+  });
+  socket.emit('update', docState.ops);
 });
 
 http.listen(3000, function(){
