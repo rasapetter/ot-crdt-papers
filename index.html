@@ -39,11 +39,22 @@ limitations under the License.
       var newstr = diff[2];
       var result = [];
       for (var i = start; i < end; i++) {
-        result.push({pri: pri, ty: 'del', ix: docState.xform_ix(i), id: getid()});
+        result.push({
+          pri: pri,
+          ty: 'del',
+          ix: docState.xform_ix(i),
+          id: getid()
+        });
       }
       var ix = docState.xform_ix(end);
       for (var i = 0; i < newstr.length; i++) {
-        result.push({pri: pri, ty: 'ins', ix: ix + i, id: getid(), ch: newstr.charAt(i)});
+        result.push({
+          pri: pri,
+          ty: 'ins',
+          ix: ix + i,
+          id: getid(),
+          ch: newstr.charAt(i)
+        });
       }
       return result;
     }

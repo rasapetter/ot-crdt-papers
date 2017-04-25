@@ -69,7 +69,13 @@ function mk_tree_raw(left, value, right) {
   var left_height = left == null ? 0 : left.height;
   var right_height = right == null ? 0 : right.height;
   var height = Math.max(left_height, right_height) + 1;
-  return {left: left, value: value, right: right, size: size, height: height};
+  return {
+    left: left,
+    value: value,
+    right: right,
+    size: size,
+    height: height
+  };
 }
 
 function mk_tree(left, value, right) {
@@ -168,12 +174,22 @@ function transform_ins(op1, ix, pri) {
     if (op1.ix < ix || (op1.ix == ix && op1.pri < pri)) {
       return op1;
     }
-    return {ty: op1.ty, ix: op1.ix + 1, ch: op1.ch, pri: op1.pri, id: op1.id};
+    return {
+      ty: op1.ty,
+      ix: op1.ix + 1,
+      ch: op1.ch,
+      pri: op1.pri,
+      id: op1.id
+    };
   } else { // op1.ty is del
     if (op1.ix < ix) {
       return op1;
     }
-    return {ty: op1.ty, ix: op1.ix + 1, id: op1.id};
+    return {
+      ty: op1.ty,
+      ix: op1.ix + 1,
+      id: op1.id
+    };
   }
 }
 
