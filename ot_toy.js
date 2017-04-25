@@ -120,42 +120,6 @@ function xiOne(tree, i) {
   }
 }
 
-
-// for debugging
-function toArray(tree) {
-  var result = [];
-  function rec(tree, base) {
-    if (tree != null) {
-      rec(tree.left, base);
-      base += tree.value;
-      result.push(base);
-      rec(tree.right, base);
-    }
-  }
-  rec(tree, 0);
-  return result;
-}
-
-function treeToy() {
-  tree = null;
-  tree = unionOne(tree, 7);
-  tree = unionOne(tree, 2);
-  tree = unionOne(tree, 0);
-  tree = unionOne(tree, 2);
-  tree = unionOne(tree, 3);
-  for (var i = 200; i > 100; i--) {
-    tree = unionOne(tree, i);
-  }
-  console.log(toArray(tree));
-  console.log(tree.size, tree.height);
-  for (var i = 0; i < 10; i++) {
-    console.log(i, xi(tree, i), xiInv(tree, xi(tree, i)), contains(tree, i));
-  }
-  console.log(toArray(xiOne(tree, 5)));
-}
-
-//tree_toy();
-
 // transformations of operations
 // All operations have 'ty' and 'ix' properties
 // also 'id'
