@@ -84,12 +84,10 @@ function mkTree(left, value, right) {
   var rightHeight = right == null ? 0 : right.height;
   if (leftHeight > rightHeight + 1) {
     // unbalanced, rotate right
-    var newRight = mkTreeRaw(left.right, value - left.value, right);
-    return mkTreeRaw(left.left, left.value, newRight);
+    return mkTreeRaw(left.left, left.value, mkTreeRaw(left.right, value - left.value, right));
   } else if (rightHeight > leftHeight + 1) {
     // unbalanced, rotate left
-    var newLeft = mkTreeRaw(left, value, right.left);
-    return mkTreeRaw(newLeft, value + right.value, right.right);
+    return mkTreeRaw(mkTreeRaw(left, value, right.left), value + right.value, right.right);
   }
   return mkTreeRaw(left, value, right);
 }
@@ -98,13 +96,11 @@ function unionOne(tree, i) {
   if (tree == null) {
     return mkTree(null, i, null);
   } else if (i < tree.value) {
-    var leftUnion = unionOne(tree.left, i);
-    return mkTree(leftUnion, tree.value, tree.right);
+    return mkTree(unionOne(tree.left, i), tree.value, tree.right);
   } else if (i == tree.value) {
     return tree;
   } else {  // i > tree.value
-    var rightUnion = unionOne(tree.right, i - tree.value);
-    return mkTree(tree.left, tree.value, rightUnion);
+    return mkTree(tree.left, tree.value, unionOne(tree.right, i - tree.value));
   }
 }
 
@@ -113,11 +109,9 @@ function xiOne(tree, i) {
   if (tree == null) {
     return null;
   } else if (i <= tree.value) {
-    var leftSeq = xiOne(tree.left, i);
-    return mkTree(leftSeq, tree.value + 1, tree.right);
+    return mkTree(xiOne(tree.left, i), tree.value + 1, tree.right);
   } else {
-    var rightSeq = xiOne(tree.right, i - tree.value);
-    return mkTree(tree.left, tree.value, rightSeq);
+    return mkTree(tree.left, tree.value, xiOne(tree.right, i - tree.value));
   }
 }
 
