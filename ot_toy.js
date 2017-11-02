@@ -15,15 +15,12 @@
 
 // A testbed for operational transformation ideas.
 
-function sizeOf(tree) {
-  return tree == null ? 0 : tree.size;
-}
 
 function xi(tree, i) {
   var base = 0;
   while (tree != null) {
     var left = tree.left;
-    var x = tree.value - sizeOf(left);
+    var x = tree.value - ((left && left.size) || 0);
     if (i < x) {
       tree = left;
     } else {
@@ -44,7 +41,10 @@ function xiInv(tree, i) {
       tree = tree.left;
     } else {
       i -= tree.value;
-      result -= sizeOf(tree.left) + 1;
+      result++;
+      if (tree.left && tree.left.size) {
+        result -= tree.left.size;
+      }
       tree = tree.right;
     }
   }
@@ -66,7 +66,7 @@ function contains(tree, i) {
 }
 
 function mkTreeRaw(left, value, right) {
-  var size = sizeOf(left) + 1 + sizeOf(right);
+  var size = 1 + ((left && left.size) || 0) + ((right && right.size) || 0);
   var leftHeight = left == null ? 0 : left.height;
   var rightHeight = right == null ? 0 : right.height;
   var height = Math.max(leftHeight, rightHeight) + 1;
