@@ -15,6 +15,8 @@
 
 // A testbed for operational transformation ideas.
 
+const OP_INSERT = 0;
+const OP_DELETE = 1;
 
 function xi(tree, i) {
   var base = 0;
@@ -119,17 +121,17 @@ function xiOne(tree, i) {
 // All operations have 'ty' and 'ix' properties
 // also 'id'
 // sample operations:
-// {ty: 'ins', ix: 1, ch: 'x', pri: 0}
-// {ty: 'del', ix: 1}
+// {ty: OP_INSERT, ix: 1, ch: 'x', pri: 0}
+// {ty: OP_DELETE, ix: 1}
 
 // Note: mutating in place is appealing, to avoid allocations.
 function transform(op1, op2) {
-  if (op2.ty != 'ins') { return op1; }
+  if (op2.ty != OP_INSERT) { return op1; }
   return transformIns(op1, op2.ix, op2.pri);
 }
 
 function transformIns(op1, ix, pri) {
-  if (op1.ty == 'ins') {
+  if (op1.ty == OP_INSERT) {
     if (op1.ix < ix || (op1.ix == ix && op1.pri < pri)) {
       return op1;
     }
@@ -162,7 +164,7 @@ class DocState {
 
   add(op) {
     this.ops.push(op);
-    if (op.ty == 'del') {
+    if (op.ty == OP_DELETE) {
       if (!contains(this.dels, op.ix)) {
         var ix = xiInv(this.dels, op.ix);
         this.dels = unionOne(this.dels, op.ix);
@@ -173,7 +175,7 @@ class DocState {
           }
         }
       }
-    } else if (op.ty == 'ins') {
+    } else if (op.ty == OP_INSERT) {
       this.dels = xiOne(this.dels, op.ix);
       var ix = xiInv(this.dels, op.ix);
       this.str = this.str.slice(0, ix) + op.ch + this.str.slice(ix);
@@ -225,7 +227,7 @@ class Peer {
     var T = null;
     for (var ix = ops.length - 1; ix >= this.rev; ix--) {
       var myOp = ops[ix];
-      if (myOp.ty == 'ins') {
+      if (myOp.ty == OP_INSERT) {
         var i = xi(S, myOp.ix);
         if (!this.context.has(myOp.id)) {
           insList.push([xiInv(T, i), myOp.pri]);
@@ -251,4 +253,8 @@ class Peer {
 if (typeof exports !== 'undefined') {
   exports.DocState = DocState;
   exports.Peer = Peer;
+  exports.OPERATIONS = {
+    INSERT: OP_INSERT,
+    DELETE: OP_DELETE
+  };
 }
